@@ -5,6 +5,8 @@ public class SaveWesteros extends SearchProblem{
 	Coordinates dragonstone;
 	ArrayList<Coordinates> obstacles;
 	int maxDragonglass;
+	int gridX;
+	int gridY;
 	
 	public SaveWesteros(char[][] grid) {
 		
@@ -30,88 +32,89 @@ public class SaveWesteros extends SearchProblem{
 	}
 
 	public Node transitionFunction(Node node, String operator) {
-		if(((SWState)node.state).jon.y == 3 && operator.equals("right"))
+		
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(jon.y == gridY-1 && operator.equals("right"))
 			return null;
-		else if (((SWState)node.state).jon.y == 0 && operator.equals("left"))
+		else if (jon.y == 0 && operator.equals("left"))
 			return null;
 		
-		if(((SWState)node.state).jon.x == 3 && operator.equals("down"))
+		if(jon.x == gridX-1 && operator.equals("down"))
 			return null;
-		else if (((SWState)node.state).jon.x == 0 && operator.equals("up"))
+		else if (jon.x == 0 && operator.equals("up"))
 			return null;
 		
-		if(operator.equals("kill") && ((SWState)node.state).dragonglasses == 0)
+		if(operator.equals("kill") && currentState.dragonglasses == 0)
 			return null;
 		
 		for(int i = 0; i < obstacles.size(); i++) {
 			Coordinates obstacle = obstacles.get(i);
-			if(((SWState)node.state).jon.x == obstacle.x && ((SWState)node.state).jon.y == obstacle.y + 1 && operator.equals("right"))
+			if(jon.x == obstacle.x && jon.y == obstacle.y + 1 && operator.equals("right"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == obstacle.x && ((SWState)node.state).jon.y == obstacle.y - 1 && operator.equals("left"))
+			if(jon.x == obstacle.x && jon.y == obstacle.y - 1 && operator.equals("left"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == obstacle.x + 1 && ((SWState)node.state).jon.y == obstacle.y && operator.equals("down"))
+			if(jon.x == obstacle.x + 1 && jon.y == obstacle.y && operator.equals("down"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == obstacle.x - 1 && ((SWState)node.state).jon.y == obstacle.y && operator.equals("up"))
+			if(jon.x == obstacle.x - 1 && jon.y == obstacle.y && operator.equals("up"))
 				return null;
 		}
 		
-		ArrayList<Coordinates> tmpwhitewalker = ((SWState)node.state).whitewalkers;
+		ArrayList<Coordinates> tmpwhitewalker = currentState.whitewalkers;
+		
 		for(int i = 0; i < tmpwhitewalker.size(); i++) {
 			Coordinates whitewalker = tmpwhitewalker.get(i);
-			if(((SWState)node.state).jon.x == whitewalker.x && ((SWState)node.state).jon.y == whitewalker.y + 1 && operator.equals("right"))
+			if(jon.x == whitewalker.x && jon.y == whitewalker.y + 1 && operator.equals("right"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == whitewalker.x && ((SWState)node.state).jon.y == whitewalker.y - 1 && operator.equals("left"))
+			if(jon.x == whitewalker.x && jon.y == whitewalker.y - 1 && operator.equals("left"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == whitewalker.x + 1 && ((SWState)node.state).jon.y == whitewalker.y && operator.equals("down"))
+			if(jon.x == whitewalker.x + 1 && jon.y == whitewalker.y && operator.equals("down"))
 				return null;
 			
-			if(((SWState)node.state).jon.x == whitewalker.x - 1 && ((SWState)node.state).jon.y == whitewalker.y && operator.equals("up"))
+			if(jon.x == whitewalker.x - 1 && jon.y == whitewalker.y && operator.equals("up"))
 				return null;
 		}
 		
-		if(operator.equals("collect") && ((SWState)node.state).jon.x != dragonstone.x && ((SWState)node.state).jon.y != dragonstone.y)
+		if(operator.equals("collect") && jon.x != dragonstone.x && jon.y != dragonstone.y)
 			return null;
 		
 		if(operator.equals("right")) {
-			Coordinates newJon = new Coordinates(((SWState)node.state).jon.x, ((SWState)node.state).jon.y + 1);
-			State tmp = new SWState(newJon, ((SWState)node.state).dragonglasses, ((SWState)node.state).whitewalkers);
+			Coordinates newJon = new Coordinates(jon.x,jon.y + 1);
+			State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
 			int cost = pathCost(node);
 			return new Node(tmp, node, cost, node.depth+1, "right");
 		}
 		
 		if(operator.equals("left")) {
-			Coordinates newJon = new Coordinates(((SWState)node.state).jon.x, ((SWState)node.state).jon.y - 1);
-			State tmp = new SWState(newJon, ((SWState)node.state).dragonglasses, ((SWState)node.state).whitewalkers);
-			//costfunction
+			Coordinates newJon = new Coordinates(jon.x,jon.y - 1);
+			State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
 			int cost = pathCost(node);
 			return new Node(tmp, node, cost, node.depth+1, "left");
 		}
 		
 		if(operator.equals("up")) {
-			Coordinates newJon = new Coordinates(((SWState)node.state).jon.x - 1, ((SWState)node.state).jon.y);
-			State tmp = new SWState(newJon, ((SWState)node.state).dragonglasses, ((SWState)node.state).whitewalkers);
-			//costfunction
+			Coordinates newJon = new Coordinates(jon.x - 1,jon.y);
+			State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
 			int cost = pathCost(node);
 			return new Node(tmp, node, cost, node.depth+1, "up");
 		}
 		
 		if(operator.equals("down")) {
-			Coordinates newJon = new Coordinates(((SWState)node.state).jon.x + 1, ((SWState)node.state).jon.y);
-			State tmp = new SWState(newJon, ((SWState)node.state).dragonglasses, ((SWState)node.state).whitewalkers);
-			//costfunction
+			Coordinates newJon = new Coordinates(jon.x + 1,jon.y);
+			State tmp = new SWState(newJon,currentState.dragonglasses, currentState.whitewalkers);
 			int cost = pathCost(node);
 			return new Node(tmp, node, cost, node.depth+1, "down");
 		}
 		
 		if(operator.equals("collect")) {
-			Coordinates newJon = new Coordinates(((SWState)node.state).jon.x, ((SWState)node.state).jon.y);
-			State tmp = new SWState(newJon, maxDragonglass, ((SWState)node.state).whitewalkers);
-			//costfunction
+			Coordinates newJon = new Coordinates(jon.x,jon.y);
+			State tmp = new SWState(newJon, maxDragonglass, currentState.whitewalkers);
 			int cost = pathCost(node);
 			return new Node(tmp, node, cost, node.depth+1, "collect");
 		}
@@ -124,6 +127,7 @@ public class SaveWesteros extends SearchProblem{
 		return null;
 		
 	}
+
 
 	public boolean goalTest(Node node) {
 		if(((SWState) node.state).whitewalkers.isEmpty())
@@ -141,6 +145,8 @@ public class SaveWesteros extends SearchProblem{
  
 		this.maxDragonglass = 5;
 		char[][] grid = new char[4][4];
+		gridX = 4;
+		gridY = 4;
 		for(int i=0; i<4; i++)
 			for(int j=0; j<4; j++){
 				if(i==0 && j==0)
@@ -156,6 +162,61 @@ public class SaveWesteros extends SearchProblem{
 				}
 			}
 		
+		return grid;
+	}
+	
+	public char[][] GenGridRandom(){
+		//(int)(Math.random() * ((upperbound - lowerbound) + 1) + lowerbound);
+		gridX = (int)(Math.random()*3 + 4); //From 4 to 6
+		gridY = (int)(Math.random()*3 + 4); //From 4 to 6
+		char[][] grid = new char[gridX][gridY];
+		
+		
+		for(int i=0;i<gridX;i++)
+			for(int j=0; j<gridY; j++){
+				if(i == gridX-1 && j == gridY-1)
+					grid[i][j] = 'J';
+				else
+					grid[i][j] = 'E';
+		}
+		
+		int obstaclesCount = 0; //Number of obstacles added so far
+		int obstaclesMax = (int)(Math.random()*3 + 2); //Number of obstacles that should be added. From 2 to 4
+		
+		while(obstaclesCount < obstaclesMax){
+			int obstacleX = (int)(Math.random()*gridX); //From 0 to gridX-1
+			int obstacleY = (int)(Math.random()*gridY); //From 0 to gridY-1
+			if(grid[obstacleX][obstacleY] == 'E'){
+				obstaclesCount++;
+				grid[obstacleX][obstacleY] = 'O';
+			}
+		}
+		
+		maxDragonglass = (int)(Math.random()*7 + 2); //From 2 to 8
+		
+		//Add dragonstone to grid
+		boolean flag = false;
+		while(!flag){
+			int dragonstoneX = (int)(Math.random()*gridX); //From 0 to gridX-1
+			int dragonstoneY = (int)(Math.random()*gridY); //From 0 to gridY-1
+			if(grid[dragonstoneX][dragonstoneY] == 'E'){
+				grid[dragonstoneX][dragonstoneY] = 'D';
+				flag = true;
+			}
+		}
+		
+		int whitewalkersCount = 0; //Number of whitewalkers added so far
+		int whitewalkersMax = (int)(Math.random()*4 + 2); //Number of whitewalkers that should be added. From 2 to 5
+		
+		while(whitewalkersCount < whitewalkersMax){
+			int whitewalkerX = (int)(Math.random()*gridX); //From 0 to gridX-1
+			int whitewalkerY = (int)(Math.random()*gridY); //From 0 to gridY-1
+			if(grid[whitewalkerX][whitewalkerY] == 'E'){
+				whitewalkersCount++;
+				grid[whitewalkerX][whitewalkerY] = 'W';
+			}
+		}
+
 		return grid;
 	}
 	
@@ -178,6 +239,182 @@ public class SaveWesteros extends SearchProblem{
 		result[2] = goal.depth+1+"";
 		
 		return result;
+		
+	}
+	
+	public Node transitionFunctionH(Node node, String operator) {
+		if(operator.equals("right"))
+			return transitionFunctionRight(node);
+		
+		if(operator.equals("left"))
+			return transitionFunctionLeft(node);
+		
+		if(operator.equals("up"))
+			return transitionFunctionUp(node);
+		
+		if(operator.equals("down"))
+			return transitionFunctionDown(node);
+		
+		if(operator.equals("kill"))
+			return transitionFunctionKill(node);
+		
+		if(operator.equals("collect"))
+			return transitionFunctionCollect(node);
+		
+		return null;
+	}
+	
+	Node transitionFunctionRight(Node node){
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		if(jon.y == gridY-1)
+			return null;
+		
+		for(int i =0; i<obstacles.size();i++){
+			if(jon.y+1 == obstacles.get(i).y)
+				return null;
+		}
+		
+		for(int i =0; i<currentState.whitewalkers.size();i++){
+			if(jon.y+1 == currentState.whitewalkers.get(i).y)
+				return null;
+		}
+		
+		Coordinates newJon = new Coordinates(jon.x,jon.y + 1);
+		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
+		int cost = pathCost(node);
+		return new Node(tmp, node, cost, node.depth+1, "right");
+		
+	}
+	
+	Node transitionFunctionLeft(Node node){
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(jon.y == 0)
+			return null;
+		
+		for(int i =0; i<obstacles.size();i++){
+			if(jon.y-1 == obstacles.get(i).y)
+				return null;
+		}
+		
+		for(int i =0; i<currentState.whitewalkers.size();i++){
+			if(jon.y-1 == currentState.whitewalkers.get(i).y)
+				return null;
+		}
+		
+		Coordinates newJon = new Coordinates(jon.x,jon.y-1);
+		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
+		int cost = pathCost(node);
+		return new Node(tmp, node, cost, node.depth+1, "left");
+	}
+	
+	Node transitionFunctionUp(Node node){
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(jon.x == 0)
+			return null;
+		
+		for(int i =0; i<obstacles.size();i++){
+			if(jon.x-1 == obstacles.get(i).x)
+				return null;
+		}
+		
+		for(int i =0; i<currentState.whitewalkers.size();i++){
+			if(jon.x-1 == currentState.whitewalkers.get(i).x)
+				return null;
+		}
+		
+		Coordinates newJon = new Coordinates(jon.x-1,jon.y);
+		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
+		int cost = pathCost(node);
+		return new Node(tmp, node, cost, node.depth+1, "up");
+	}
+	
+	Node transitionFunctionDown(Node node){
+		
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(jon.x == gridX-1)
+			return null;
+		
+		for(int i =0; i<obstacles.size();i++){
+			if(jon.x+1 == obstacles.get(i).x)
+				return null;
+		}
+		
+		for(int i =0; i<currentState.whitewalkers.size();i++){
+			if(jon.x+1 == currentState.whitewalkers.get(i).x)
+				return null;
+		}
+		
+		Coordinates newJon = new Coordinates(jon.x+1,jon.y);
+		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
+		int cost = pathCost(node);
+		return new Node(tmp, node, cost, node.depth+1, "down");
+	}
+	
+	Node transitionFunctionKill(Node node){
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(currentState.dragonglasses == 0)
+			return null;
+		
+		ArrayList<Integer> whitewalkersIndex = new ArrayList<>();
+		
+		for(int i=0; i<currentState.whitewalkers.size(); i++){
+			Coordinates whitewalker = currentState.whitewalkers.get(i);
+			if(jon.x == whitewalker.x && jon.y+1 == whitewalker.y)
+				whitewalkersIndex.add(i);
+			
+			if(jon.x == whitewalker.x && jon.y-1 == whitewalker.y)
+				whitewalkersIndex.add(i);
+			
+			if(jon.x-1 == whitewalker.x && jon.y == whitewalker.y)
+				whitewalkersIndex.add(i);
+			
+			if(jon.x+1 == whitewalker.x && jon.y == whitewalker.y)
+				whitewalkersIndex.add(i);
+			
+		}
+		
+		if(whitewalkersIndex.isEmpty())
+			return null;
+		else{
+			ArrayList<Coordinates> newWhitewalkers = new ArrayList<>();
+			for(int i=0; i<currentState.whitewalkers.size();i++){
+				if(!(whitewalkersIndex.contains(i))){
+					newWhitewalkers.add(currentState.whitewalkers.get(i));
+				}
+			}
+				
+			State tmp = new SWState(jon, currentState.dragonglasses-1, newWhitewalkers);
+			int cost = pathCost(node);
+			return new Node(tmp, node, cost, node.depth+1, "kill");
+		}
+
+	}
+	
+	Node transitionFunctionCollect(Node node){
+		SWState currentState = ((SWState)node.state);
+		Coordinates jon = currentState.jon;
+		
+		if(jon.x == dragonstone.x && jon.y == dragonstone.y){
+			State tmp = new SWState(jon, maxDragonglass, currentState.whitewalkers);
+			int cost = pathCost(node);
+			return new Node(tmp, node, cost, node.depth+1, "collect");
+		}
+		
+		return null;
+	}
+	
+	
+	public static void main(String[]args){
+		System.out.println("HELLO");
 		
 	}
 

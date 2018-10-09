@@ -52,6 +52,36 @@ public class SaveWesteros extends SearchProblem{
 		return 0;
 	}
 	
+	public int h1(Node node){
+		SWState state = (SWState)node.state;
+		int h = (int)Math.ceil(state.whitewalkers.size()/3);
+		if(state.dragonglasses == 0){
+			h += Math.abs(state.jon.x - dragonstone.x) + Math.abs(state.jon.y - dragonstone.y);
+		}
+		
+		return h;
+	}
+	
+	public int h2(Node node){
+		
+		if(goalTest(node))
+			return 0;
+		
+		SWState state = (SWState)node.state;
+		Coordinates jon = state.jon;
+		ArrayList<Coordinates> whitewalkers = state.whitewalkers;
+		int min = 1000;
+		
+		for(int i=0; i<whitewalkers.size(); i++){
+			Coordinates whitewalker = whitewalkers.get(i);
+			int distance = Math.abs(jon.x - whitewalker.x) + Math.abs(jon.y - whitewalker.y);
+			if(distance < min)
+				min = distance;
+		}
+		return min + pathCost("kill");
+	}
+	
+	
 	public static char[][] genGrid() {
  
 //		this.maxDragonglass = 5;
@@ -73,20 +103,20 @@ public class SaveWesteros extends SearchProblem{
 //				}
 //			}
 		
-//		for(int i=0; i<4; i++)
-//			for(int j=0; j<4; j++){
-//				if(i==0 && j==0)
-//					grid[i][j] = 'D';
-//				else if((i == 0 && j == 2))
-//					grid[i][j] = 'O';
-//				else if((i==0 && j==1) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
-//					grid[i][j] = 'W';
-//				else if( i== 3 && j==3)
-//					grid[i][j] = 'J';
-//				else {
-//					grid[i][j] = 'E';
-//				}
-//			}
+		for(int i=0; i<4; i++)
+			for(int j=0; j<4; j++){
+				if(i==0 && j==0)
+					grid[i][j] = 'D';
+				else if((i == 0 && j == 2))
+					grid[i][j] = 'O';
+				else if((i==0 && j==1) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
+					grid[i][j] = 'W';
+				else if( i== 3 && j==3)
+					grid[i][j] = 'J';
+				else {
+					grid[i][j] = 'E';
+				}
+			}
 		
 //		for(int i=0; i<4; i++)
 //		for(int j=0; j<4; j++){
@@ -103,20 +133,20 @@ public class SaveWesteros extends SearchProblem{
 //			}
 //		}
 		
-		for(int i=0; i<4; i++)
-			for(int j=0; j<4; j++){
-				if(i==2 && j==1)
-					grid[i][j] = 'D';
-//				else if((i == 1 && j == 3))
-//					grid[i][j] = 'O';
-				else if((i==2 && j==2) )
-					grid[i][j] = 'W';
-				else if( i== 3 && j==3)
-					grid[i][j] = 'J';
-				else {
-					grid[i][j] = 'E';
-				}
-			}
+//		for(int i=0; i<4; i++)
+//			for(int j=0; j<4; j++){
+//				if(i==2 && j==1)
+//					grid[i][j] = 'D';
+////				else if((i == 1 && j == 3))
+////					grid[i][j] = 'O';
+//				else if((i==2 && j==2) || (i==1 && j==1) || (i==0 && j==2))
+//					grid[i][j] = 'W';
+//				else if( i== 3 && j==3)
+//					grid[i][j] = 'J';
+//				else {
+//					grid[i][j] = 'E';
+//				}
+//			}
 		
 //		for(int i=0; i<4; i++)
 //		for(int j=0; j<4; j++){
@@ -219,11 +249,10 @@ public class SaveWesteros extends SearchProblem{
 		grids.push(currentGrid);
 		grids.push(goal.operator);
 		
-		while(current != null){ //changed this from current to current.operator
+		while(current != null){ 
 			SWState currentState = (SWState)current.state;
 			if(current.operator != null)
 				path = current.operator +" "+ path;
-//			cost += current.cost;
 			
 			currentGrid = new char[grid.length][grid[0].length];
 			
@@ -232,6 +261,9 @@ public class SaveWesteros extends SearchProblem{
 				currentGrid[obstacles.get(i).x][obstacles.get(i).y] = 'O';
 			}
 			currentGrid[currentState.jon.x][currentState.jon.y] = 'J';
+			
+			if(currentState.jon.x == dragonstone.x && currentState.jon.y == dragonstone.y)
+				currentGrid[currentState.jon.x][currentState.jon.y] = 'X';
 			
 			for(int i=0; i<currentState.whitewalkers.size(); i++){
 				currentGrid[currentState.whitewalkers.get(i).x][currentState.whitewalkers.get(i).y] = 'W';
@@ -270,7 +302,9 @@ public class SaveWesteros extends SearchProblem{
 		
 		result[0] = "Actions to goal: "+path;
 		result[1] = "Cost: "+cost;
-		result[2] = "Depth: "+goal.depth; //number of moves  = depth (not depth+1)
+		result[2] = "Depth: "+goal.depth; 
+		
+		System.out.println("Expanded Nodes: " + sw.expandedNodes);
 		
 		return result;
 		
@@ -335,20 +369,19 @@ public class SaveWesteros extends SearchProblem{
 		Coordinates newJon = new Coordinates(jon.x,jon.y + 1);
 		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
 		
-		int cost = 0;
-		int heuristic = 0;
+		int cost = pathCost("move") + node.cost;
+
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "right", node.strategy);
+		
 		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			newNode.heuristic = h1(newNode);
 			
 		}
 		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-			
+			newNode.heuristic = h2(newNode);
 		}
-		else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-			cost = pathCost("move");
-			
-		}
-		return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "right", node.strategy);
 		
+		return newNode;
 	}
 	
 	Node transitionFunctionLeft(Node node){
@@ -377,19 +410,20 @@ public class SaveWesteros extends SearchProblem{
 		
 		Coordinates newJon = new Coordinates(jon.x,jon.y-1);
 		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
-		int cost = 0;
-		int heuristic = 0;
+		
+		int cost = pathCost("move") + node.cost;
+
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "left", node.strategy);
+		
 		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			newNode.heuristic = h1(newNode);
 			
 		}
 		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-			
+			newNode.heuristic = h2(newNode);
 		}
-		else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-			cost = pathCost("move");
-			
-		}
-		return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "left", node.strategy);
+
+		return newNode;
 	}
 	
 	Node transitionFunctionUp(Node node){
@@ -418,19 +452,20 @@ public class SaveWesteros extends SearchProblem{
 		
 		Coordinates newJon = new Coordinates(jon.x-1,jon.y);
 		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
-		int cost = 0;
-		int heuristic = 0;
+		
+		int cost = pathCost("move") + node.cost;
+
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "up", node.strategy);
+		
 		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			newNode.heuristic = h1(newNode);
 			
 		}
 		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-			
+			newNode.heuristic = h2(newNode);
 		}
-		else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-			cost = pathCost("move");
-			
-		}
-		return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "up", node.strategy);
+		
+		return newNode;
 	}
 	
 	Node transitionFunctionDown(Node node){
@@ -460,20 +495,19 @@ public class SaveWesteros extends SearchProblem{
 		
 		Coordinates newJon = new Coordinates(jon.x+1,jon.y);
 		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
-		int cost = 0;
-		int heuristic = 0;
+		int cost = pathCost("move") + node.cost;
+
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "down", node.strategy);
 		
 		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			newNode.heuristic = h1(newNode);
 			
 		}
 		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-			
+			newNode.heuristic = h2(newNode);
 		}
-		else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-			cost = pathCost("move");
-			
-		}
-		return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "down", node.strategy);
+
+		return newNode;
 	}
 	
 	Node transitionFunctionKill(Node node){
@@ -512,19 +546,20 @@ public class SaveWesteros extends SearchProblem{
 			}
 				
 			State tmp = new SWState(jon, currentState.dragonglasses-1, newWhitewalkers);
-			int cost = 0;
-			int heuristic = 0;
+			
+			int cost = pathCost("kill") + node.cost;
+
+			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "kill", node.strategy);
+			
 			if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+				newNode.heuristic = h1(newNode);
 				
 			}
 			else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-				
+				newNode.heuristic = h2(newNode);
 			}
-			else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-				cost = pathCost("kill");
-				
-			}
-			return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "kill", node.strategy);
+
+			return newNode;
 		}
 
 	}
@@ -535,19 +570,20 @@ public class SaveWesteros extends SearchProblem{
 		
 		if(jon.x == dragonstone.x && jon.y == dragonstone.y && currentState.dragonglasses == 0){
 			State tmp = new SWState(jon, maxDragonglass, currentState.whitewalkers);
-			int cost = 0;
-			int heuristic = 0;
+			
+			int cost = pathCost("collect") + node.cost;
+			
+			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "collect", node.strategy);
+			
 			if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+				newNode.heuristic = h1(newNode);
 				
 			}
 			else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
-				
+				newNode.heuristic = h2(newNode);
 			}
-			else if(!(node.strategy.equals("GR1") || node.strategy.equals("GR2"))){
-				cost = pathCost("collect");
-				
-			}
-			return new Node(tmp, node, node.cost + cost, heuristic, node.depth+1, "collect", node.strategy);
+
+			return newNode;
 		}
 		
 		return null;
@@ -563,7 +599,6 @@ public class SaveWesteros extends SearchProblem{
 		for(int i = 0; i < result.length; i++)
 			System.out.println(result[i]);
 	}
-
 }
 
 

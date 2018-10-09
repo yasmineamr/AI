@@ -10,17 +10,19 @@ public abstract class SearchProblem {
 	String[] operators;
 	
 	static final int INF = (int)1e9;
+	static int expandedNodes = 0;
 	
 	public abstract Node transitionFunction(Node node, String operator);
 	public abstract boolean goalTest(Node node);
 	public abstract int pathCost(String operator);
+	public abstract int h1(Node node);
+	public abstract int h2(Node node);
 	public abstract ArrayList<Node> expand(Node node, String[] operators);
 	
 	public Node GeneralSearch(SearchProblem problem, String strategy){
-		
-//		if(strategy.equals("UC")) {
-//			return ucs(problem);
-//		}
+		if(strategy.equals("UC") || strategy.equals("GR1") || strategy.equals("AS1") || strategy.equals("GR2") || strategy.equals("AS2") ) {
+			return ucs(problem);
+		}
 		
 		ArrayList<Node> list = new ArrayList<Node>();
 		list.add(problem.initialState);
@@ -35,6 +37,7 @@ public abstract class SearchProblem {
 					return null;
 			}
 			Node curr = (Node) list.remove(0);
+			expandedNodes++;
 //			SWState state = (SWState) curr.state;
 //			System.out.println(state.jon.x + " " + state.jon.y + curr.operator);
 
@@ -56,6 +59,9 @@ public abstract class SearchProblem {
 				case "UC":
 					list.add(result.get(i));
 					Collections.sort(list);
+					break;
+				case "GR1":
+					
 					break;
 				default:
 					break;
@@ -125,14 +131,15 @@ public abstract class SearchProblem {
 		}
 	}
 	
-	public static Node ucs(SearchProblem problem){
+	public static Node ucs(SearchProblem problem) {
 		PriorityQueue<Node> q = new PriorityQueue<Node>();
 		q.add(problem.initialState);
 		while(true) {
 			if(q.isEmpty()) return null;
 			Node curr = (Node) q.poll();
+			expandedNodes++;
 //			SWState state = (SWState) curr.state;
-//			System.out.println(state.jon.x + " " + state.jon.y + curr.operator);
+//			System.out.println(state.jon.x + " " + state.jon.y + " "+ curr.operator + " " + curr.cost + " " + curr.heuristic + " " + curr.depth);
 			if(problem.goalTest(curr))
 				return curr;
 			//ArrayList<Node> result = problem.expand(curr, ((SaveWesteros)problem).operators);

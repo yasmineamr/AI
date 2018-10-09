@@ -19,11 +19,17 @@ public class Node implements Comparable<Node>{
 	}
 
 
-	@Override
 	public int compareTo(Node n) {
-		
-		return cost - n.cost;
-		
+		switch (strategy) {
+		case "GR1":
+		case "GR2":
+			return heuristic - n.heuristic;
+		case "AS1":
+		case "AS2":
+			return (cost + heuristic) - (n.cost + n.heuristic);
+		default:
+			return cost - n.cost;
+		}
 	}
 	
 	

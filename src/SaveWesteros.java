@@ -5,9 +5,9 @@ public class SaveWesteros extends SearchProblem{
 	
 	static Coordinates dragonstone;
 	static ArrayList<Coordinates> obstacles;
-	int maxDragonglass = 5;
-	int gridX = 4;
-	int gridY = 4;
+	static int maxDragonglass;
+	static int gridX;
+	static int gridY;
 	
 	public SaveWesteros(char[][] grid, String strategy) {
 		
@@ -54,10 +54,7 @@ public class SaveWesteros extends SearchProblem{
 	
 	public int h1(Node node){
 		SWState state = (SWState)node.state;
-		int h = (int)Math.ceil(state.whitewalkers.size()/3);
-		if(state.dragonglasses == 0){
-			h += Math.abs(state.jon.x - dragonstone.x) + Math.abs(state.jon.y - dragonstone.y);
-		}
+		int h = (int)Math.ceil(state.whitewalkers.size()/3) * pathCost("kill");
 		
 		return h;
 	}
@@ -84,10 +81,10 @@ public class SaveWesteros extends SearchProblem{
 	
 	public static char[][] genGrid() {
  
-//		this.maxDragonglass = 5;
+		maxDragonglass = 5;
 		char[][] grid = new char[4][4];
-//		gridX = 4;
-//		gridY = 4;
+		gridX = 4;
+		gridY = 4;
 //		for(int i=0; i<4; i++)
 //			for(int j=0; j<4; j++){
 //				if(i==0 && j==0)
@@ -103,35 +100,35 @@ public class SaveWesteros extends SearchProblem{
 //				}
 //			}
 		
-		for(int i=0; i<4; i++)
-			for(int j=0; j<4; j++){
-				if(i==0 && j==0)
-					grid[i][j] = 'D';
-				else if((i == 0 && j == 2))
-					grid[i][j] = 'O';
-				else if((i==0 && j==1) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
-					grid[i][j] = 'W';
-				else if( i== 3 && j==3)
-					grid[i][j] = 'J';
-				else {
-					grid[i][j] = 'E';
-				}
-			}
-		
 //		for(int i=0; i<4; i++)
-//		for(int j=0; j<4; j++){
-//			if(i==0 && j==0)
-//				grid[i][j] = 'D';
-//			else if((i == 0 && j == 2))
-//				grid[i][j] = 'O';
-//			else if((i==0 && j==2) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
-//				grid[i][j] = 'W';
-//			else if( i== 3 && j==3)
-//				grid[i][j] = 'J';
-//			else {
-//				grid[i][j] = 'E';
+//			for(int j=0; j<4; j++){
+//				if(i==0 && j==0)
+//					grid[i][j] = 'D';
+//				else if((i == 0 && j == 2))
+//					grid[i][j] = 'O';
+//				else if((i==0 && j==1) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
+//					grid[i][j] = 'W';
+//				else if( i== 3 && j==3)
+//					grid[i][j] = 'J';
+//				else {
+//					grid[i][j] = 'E';
+//				}
 //			}
-//		}
+		
+		for(int i=0; i<4; i++)
+		for(int j=0; j<4; j++){
+			if(i==0 && j==0)
+				grid[i][j] = 'D';
+			else if((i == 0 && j == 2))
+				grid[i][j] = 'O';
+			else if((i==0 && j==2) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
+				grid[i][j] = 'W';
+			else if( i== 3 && j==3)
+				grid[i][j] = 'J';
+			else {
+				grid[i][j] = 'E';
+			}
+		}
 		
 //		for(int i=0; i<4; i++)
 //			for(int j=0; j<4; j++){
@@ -147,7 +144,7 @@ public class SaveWesteros extends SearchProblem{
 //					grid[i][j] = 'E';
 //				}
 //			}
-		
+//		
 //		for(int i=0; i<4; i++)
 //		for(int j=0; j<4; j++){
 //			if(i==0 && j==0)
@@ -166,7 +163,7 @@ public class SaveWesteros extends SearchProblem{
 		return grid;
 	}
 	
-	public char[][] GenGridRandom(){
+	public static char[][] genGridRandom(){
 		//(int)(Math.random() * ((upperbound - lowerbound) + 1) + lowerbound);
 		gridX = (int)(Math.random()*3 + 4); //From 4 to 6
 		gridY = (int)(Math.random()*3 + 4); //From 4 to 6
@@ -592,9 +589,18 @@ public class SaveWesteros extends SearchProblem{
 	
 	public static void main(String[]args){
 		
-		char[][] grid = genGrid();
+		char[][] grid = genGridRandom();
 		
-		String[] result = search(grid, "UC", true);
+		for(int i = 0; i < grid.length; i++) {
+			for(int j = 0; j < grid[0].length; j++) {
+				System.out.print(grid[i][j] + " ");
+			}
+			System.out.println();
+		}
+		
+		System.out.println(maxDragonglass);
+		
+		String[] result = search(grid, "BF", true);
 		
 		for(int i = 0; i < result.length; i++)
 			System.out.println(result[i]);

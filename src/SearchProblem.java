@@ -20,9 +20,9 @@ public abstract class SearchProblem {
 	public abstract ArrayList<Node> expand(Node node, String[] operators);
 	
 	public Node GeneralSearch(SearchProblem problem, String strategy){
-		if(strategy.equals("UC") || strategy.equals("GR1") || strategy.equals("AS1") || strategy.equals("GR2") || strategy.equals("AS2") ) {
-			return ucs(problem);
-		}
+//		if(strategy.equals("UC") || strategy.equals("GR1") || strategy.equals("AS1") || strategy.equals("GR2") || strategy.equals("AS2") ) {
+//			return ucs(problem);
+//		}
 		
 		ArrayList<Node> list = new ArrayList<Node>();
 		list.add(problem.initialState);
@@ -57,11 +57,12 @@ public abstract class SearchProblem {
 						list.add(0, result.get(i));
 					break;
 				case "UC":
+				case "GR1":
+				case "GR2":
+				case "AS1":
+				case "AS2":
 					list.add(result.get(i));
 					Collections.sort(list);
-					break;
-				case "GR1":
-					
 					break;
 				default:
 					break;

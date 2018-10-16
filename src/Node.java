@@ -6,30 +6,34 @@ public class Node implements Comparable<Node>{
 	int heuristic;
 	int depth;
 	String operator;
-	String strategy;
+	int evaluate;
+	//String strategy;
 	
-	public Node(State s, Node p, int c, int h, int d, String o, String st){
+	public Node(State s, Node p, int c, int h, int d, String o, int e){
 		state = s;
 		parent = p;
 		cost = c;
 		heuristic = h;
 		depth = d;
 		operator = o;
-		strategy = st;
+		evaluate = e;
+		//strategy = st;
 	}
 
 
 	public int compareTo(Node n) {
-		switch (strategy) {
-		case "GR1":
-		case "GR2":
-			return heuristic - n.heuristic;
-		case "AS1":
-		case "AS2":
-			return (cost + heuristic) - (n.cost + n.heuristic);
-		default:
-			return cost - n.cost;
-		}
+		
+		return evaluate - n.evaluate;
+//		switch (strategy) {
+//		case "GR1":
+//		case "GR2":
+//			return heuristic - n.heuristic;
+//		case "AS1":
+//		case "AS2":
+//			return (cost + heuristic) - (n.cost + n.heuristic);
+//		default:
+//			return cost - n.cost;
+//		}
 	}
 	
 	

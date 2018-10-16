@@ -8,8 +8,9 @@ public class SaveWesteros extends SearchProblem{
 	static int maxDragonglass;
 	static int gridX;
 	static int gridY;
+	static String searchStrategy;
 	
-	public SaveWesteros(char[][] grid, String strategy) {
+	public SaveWesteros(char[][] grid) {
 		
 		Coordinates jon = new Coordinates(grid.length-1,grid[0].length-1);
 		int dragonglasses = 0;
@@ -29,7 +30,7 @@ public class SaveWesteros extends SearchProblem{
 		}
 		
 		State tmp = new SWState(jon, dragonglasses, whitewalkers);
-		super.initialState = new Node(tmp, null, 0, 0, 0, null, strategy);
+		super.initialState = new Node(tmp, null, 0, 0, 0, null, 0);
 //		super.operators = new String[]{"up", "down", "right", "left", "kill", "collect"};
 		super.operators = new String[]{"kill", "collect", "up", "down", "right", "left"};
 	}
@@ -43,7 +44,7 @@ public class SaveWesteros extends SearchProblem{
 	@Override
 	public int pathCost(String operator) {
 		if(operator.equals("move"))
-			return 1;
+			return 5;
 		else if(operator.equals("collect"))
 			return 1;
 		else if(operator.equals("kill"))
@@ -99,7 +100,7 @@ public class SaveWesteros extends SearchProblem{
 //					grid[i][j] = 'E';
 //				}
 //			}
-		
+//		
 //		for(int i=0; i<4; i++)
 //			for(int j=0; j<4; j++){
 //				if(i==0 && j==0)
@@ -114,7 +115,7 @@ public class SaveWesteros extends SearchProblem{
 //					grid[i][j] = 'E';
 //				}
 //			}
-		
+//		
 		for(int i=0; i<4; i++)
 		for(int j=0; j<4; j++){
 			if(i==0 && j==0)
@@ -159,14 +160,14 @@ public class SaveWesteros extends SearchProblem{
 //				grid[i][j] = 'E';
 //			}
 //		}
-		
+//		
 		return grid;
 	}
 	
 	public static char[][] genGridRandom(){
 		//(int)(Math.random() * ((upperbound - lowerbound) + 1) + lowerbound);
-		gridX = (int)(Math.random()*3 + 4); //From 4 to 6
-		gridY = (int)(Math.random()*3 + 4); //From 4 to 6
+		gridX = (int)(Math.random()*1 + 4); //From 4 to 6
+		gridY = (int)(Math.random()*1 + 4); //From 4 to 6
 		char[][] grid = new char[gridX][gridY];
 		
 		
@@ -222,7 +223,9 @@ public class SaveWesteros extends SearchProblem{
 		
 		Stack<Object> grids = new Stack<Object>();
 		String [] result = new String[3];
-		SaveWesteros sw = new SaveWesteros(grid, strategy);
+		SaveWesteros sw = new SaveWesteros(grid);
+		searchStrategy = strategy;
+		
 		Node goal = sw.GeneralSearch(sw, strategy);
 		if(goal == null) 
 			return result;
@@ -368,15 +371,27 @@ public class SaveWesteros extends SearchProblem{
 		
 		int cost = pathCost("move") + node.cost;
 
-		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "right", node.strategy);
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "right",0);
 		
-		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+		if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 			newNode.heuristic = h1(newNode);
 			
 		}
-		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+		else if(searchStrategy.equals("GR2") || searchStrategy.equals("AS2")){
 			newNode.heuristic = h2(newNode);
 		}
+
+		switch (searchStrategy) {
+		case "GR1":
+		case "GR2":
+			newNode.evaluate = newNode.heuristic;
+		case "AS1":
+		case "AS2":
+			newNode.evaluate = newNode.cost + newNode.heuristic;
+		default:
+			newNode.evaluate = newNode.cost;
+		}
+
 		
 		return newNode;
 	}
@@ -410,16 +425,26 @@ public class SaveWesteros extends SearchProblem{
 		
 		int cost = pathCost("move") + node.cost;
 
-		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "left", node.strategy);
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "left",0);
 		
-		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+		if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 			newNode.heuristic = h1(newNode);
 			
 		}
-		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+		else if(searchStrategy.equals("GR2") || searchStrategy.equals("AS2")){
 			newNode.heuristic = h2(newNode);
 		}
-
+		switch (searchStrategy) {
+		case "GR1":
+		case "GR2":
+			newNode.evaluate = newNode.heuristic;
+		case "AS1":
+		case "AS2":
+			newNode.evaluate = newNode.cost + newNode.heuristic;
+		default:
+			newNode.evaluate = newNode.cost;
+		}
+		
 		return newNode;
 	}
 	
@@ -452,14 +477,25 @@ public class SaveWesteros extends SearchProblem{
 		
 		int cost = pathCost("move") + node.cost;
 
-		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "up", node.strategy);
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "up",0);
 		
-		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+		if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 			newNode.heuristic = h1(newNode);
 			
 		}
-		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+		else if(searchStrategy.equals("GR2") ||searchStrategy.equals("AS2")){
 			newNode.heuristic = h2(newNode);
+		}
+		
+		switch (searchStrategy) {
+		case "GR1":
+		case "GR2":
+			newNode.evaluate = newNode.heuristic;
+		case "AS1":
+		case "AS2":
+			newNode.evaluate = newNode.cost + newNode.heuristic;
+		default:
+			newNode.evaluate = newNode.cost;
 		}
 		
 		return newNode;
@@ -494,14 +530,25 @@ public class SaveWesteros extends SearchProblem{
 		State tmp = new SWState(newJon, currentState.dragonglasses, currentState.whitewalkers);
 		int cost = pathCost("move") + node.cost;
 
-		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "down", node.strategy);
+		Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "down",0);
 		
-		if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+		if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 			newNode.heuristic = h1(newNode);
 			
 		}
-		else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+		else if(searchStrategy.equals("GR2") || searchStrategy.equals("AS2")){
 			newNode.heuristic = h2(newNode);
+		}
+		
+		switch (searchStrategy) {
+		case "GR1":
+		case "GR2":
+			newNode.evaluate = newNode.heuristic;
+		case "AS1":
+		case "AS2":
+			newNode.evaluate = newNode.cost + newNode.heuristic;
+		default:
+			newNode.evaluate = newNode.cost;
 		}
 
 		return newNode;
@@ -546,14 +593,25 @@ public class SaveWesteros extends SearchProblem{
 			
 			int cost = pathCost("kill") + node.cost;
 
-			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "kill", node.strategy);
+			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "kill",0);
 			
-			if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 				newNode.heuristic = h1(newNode);
 				
 			}
-			else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+			else if(searchStrategy.equals("GR2") || searchStrategy.equals("AS2")){
 				newNode.heuristic = h2(newNode);
+			}
+			
+			switch (searchStrategy) {
+			case "GR1":
+			case "GR2":
+				newNode.evaluate = newNode.heuristic;
+			case "AS1":
+			case "AS2":
+				newNode.evaluate = newNode.cost + newNode.heuristic;
+			default:
+				newNode.evaluate = newNode.cost;
 			}
 
 			return newNode;
@@ -570,16 +628,27 @@ public class SaveWesteros extends SearchProblem{
 			
 			int cost = pathCost("collect") + node.cost;
 			
-			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "collect", node.strategy);
+			Node newNode = new Node(tmp, node, cost, 0, node.depth+1, "collect",0);
 			
-			if(node.strategy.equals("GR1") || node.strategy.equals("AS1")){
+			if(searchStrategy.equals("GR1") || searchStrategy.equals("AS1")){
 				newNode.heuristic = h1(newNode);
 				
 			}
-			else if(node.strategy.equals("GR2") || node.strategy.equals("AS2")){
+			else if(searchStrategy.equals("GR2") || searchStrategy.equals("AS2")){
 				newNode.heuristic = h2(newNode);
 			}
-
+			
+			switch (searchStrategy) {
+			case "GR1":
+			case "GR2":
+				newNode.evaluate = newNode.heuristic;
+			case "AS1":
+			case "AS2":
+				newNode.evaluate = newNode.cost + newNode.heuristic;
+			default:
+				newNode.evaluate = newNode.cost;
+			}
+			
 			return newNode;
 		}
 		
@@ -589,18 +658,19 @@ public class SaveWesteros extends SearchProblem{
 	
 	public static void main(String[]args){
 		
-		char[][] grid = genGridRandom();
-		
+		char[][] grid = genGrid();
+		System.out.println();
+		System.out.println();
 		for(int i = 0; i < grid.length; i++) {
 			for(int j = 0; j < grid[0].length; j++) {
 				System.out.print(grid[i][j] + " ");
 			}
 			System.out.println();
 		}
-		
+		System.out.println();
 		System.out.println(maxDragonglass);
 		
-		String[] result = search(grid, "BF", true);
+		String[] result = search(grid, "AS2", true);
 		
 		for(int i = 0; i < result.length; i++)
 			System.out.println(result[i]);

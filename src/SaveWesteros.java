@@ -44,7 +44,7 @@ public class SaveWesteros extends SearchProblem{
 	@Override
 	public int pathCost(String operator) {
 		if(operator.equals("move"))
-			return 5;
+			return 1;
 		else if(operator.equals("collect"))
 			return 1;
 		else if(operator.equals("kill"))
@@ -80,27 +80,49 @@ public class SaveWesteros extends SearchProblem{
 	}
 	
 	
-	public static char[][] genGrid() {
+	public static char[][] genGridStatic() {
  
-		maxDragonglass = 5;
+		maxDragonglass = 6;
 		char[][] grid = new char[4][4];
 		gridX = 4;
 		gridY = 4;
+		
+		//Example 1
+		for(int i=0; i<4; i++)
+		for(int j=0; j<4; j++){
+			if(i==1 && j==2)
+				grid[i][j] = 'D';
+			else if((i==0 && j==2) || (i==1 && j==0) || (i==2 && j==1) || (i==2 && j==0))
+				grid[i][j] = 'O';
+			else if((i==3 && j==0) || (i==2 && j==2) || (i == 3 && j == 2) || (i==1 && j==1))
+				grid[i][j] = 'W';
+			else if( i== 3 && j==3)
+				grid[i][j] = 'J';
+			else {
+				grid[i][j] = 'E';
+			}
+		}
+
+		
+		//Example 2
 //		for(int i=0; i<4; i++)
-//			for(int j=0; j<4; j++){
-//				if(i==0 && j==0)
-//					grid[i][j] = 'D';
-//				else if((i==0 && j==3) || (i==3 && j==1))
-//					grid[i][j] = 'O';
-//				else if((i==2 && j==0) || (i==2 && j==1) || (i==2 && j==3))
-//					grid[i][j] = 'W';
-//				else if( i== 3 && j==3)
-//					grid[i][j] = 'J';
-//				else {
-//					grid[i][j] = 'E';
-//				}
+//		for(int j=0; j<4; j++){
+//			if(i==3 && j==2)
+//				grid[i][j] = 'D';
+//			else if((i==1 && j==1) || (i==2 && j==1))
+//				grid[i][j] = 'O';
+//			else if((i==0 && j==0) || (i==2 && j==3) || (i==0 && j==3))
+//				grid[i][j] = 'W';
+//			else if( i== 3 && j==3)
+//				grid[i][j] = 'J';
+//			else {
+//				grid[i][j] = 'E';
 //			}
-//		
+//		}
+		
+		
+
+		//Example 3
 //		for(int i=0; i<4; i++)
 //			for(int j=0; j<4; j++){
 //				if(i==0 && j==0)
@@ -115,59 +137,15 @@ public class SaveWesteros extends SearchProblem{
 //					grid[i][j] = 'E';
 //				}
 //			}
-//		
-		for(int i=0; i<4; i++)
-		for(int j=0; j<4; j++){
-			if(i==0 && j==0)
-				grid[i][j] = 'D';
-			else if((i == 0 && j == 2))
-				grid[i][j] = 'O';
-			else if((i==0 && j==2) || (i==2 && j==1) || (i==2 && j==2) || (i == 1 && j == 2) || (i == 1 && j == 3))
-				grid[i][j] = 'W';
-			else if( i== 3 && j==3)
-				grid[i][j] = 'J';
-			else {
-				grid[i][j] = 'E';
-			}
-		}
 		
-//		for(int i=0; i<4; i++)
-//			for(int j=0; j<4; j++){
-//				if(i==2 && j==1)
-//					grid[i][j] = 'D';
-////				else if((i == 1 && j == 3))
-////					grid[i][j] = 'O';
-//				else if((i==2 && j==2) || (i==1 && j==1) || (i==0 && j==2))
-//					grid[i][j] = 'W';
-//				else if( i== 3 && j==3)
-//					grid[i][j] = 'J';
-//				else {
-//					grid[i][j] = 'E';
-//				}
-//			}
-//		
-//		for(int i=0; i<4; i++)
-//		for(int j=0; j<4; j++){
-//			if(i==0 && j==0)
-//				grid[i][j] = 'D';
-//			else if((i==0 && j==3) || (i==3 && j==1) || (i == 2 && j == 2))
-//				grid[i][j] = 'O';
-//			else if((i==2 && j==0) || (i==2 && j==1) || (i==2 && j==3) || (i == 3 && j == 0))
-//				grid[i][j] = 'W';
-//			else if( i== 3 && j==3)
-//				grid[i][j] = 'J';
-//			else {
-//				grid[i][j] = 'E';
-//			}
-//		}
-//		
 		return grid;
 	}
 	
-	public static char[][] genGridRandom(){
+	public static char[][] genGrid(){
+		
 		//(int)(Math.random() * ((upperbound - lowerbound) + 1) + lowerbound);
-		gridX = (int)(Math.random()*1 + 4); //From 4 to 6
-		gridY = (int)(Math.random()*1 + 4); //From 4 to 6
+		gridX = (int)(Math.random()*1 + 5); //From 4 to 6
+		gridY = (int)(Math.random()*1 + 5); //From 4 to 6
 		char[][] grid = new char[gridX][gridY];
 		
 		
@@ -385,9 +363,11 @@ public class SaveWesteros extends SearchProblem{
 		case "GR1":
 		case "GR2":
 			newNode.evaluate = newNode.heuristic;
+			break;
 		case "AS1":
 		case "AS2":
 			newNode.evaluate = newNode.cost + newNode.heuristic;
+			break;
 		default:
 			newNode.evaluate = newNode.cost;
 		}
@@ -438,9 +418,11 @@ public class SaveWesteros extends SearchProblem{
 		case "GR1":
 		case "GR2":
 			newNode.evaluate = newNode.heuristic;
+			break;
 		case "AS1":
 		case "AS2":
 			newNode.evaluate = newNode.cost + newNode.heuristic;
+			break;
 		default:
 			newNode.evaluate = newNode.cost;
 		}
@@ -491,9 +473,11 @@ public class SaveWesteros extends SearchProblem{
 		case "GR1":
 		case "GR2":
 			newNode.evaluate = newNode.heuristic;
+			break;
 		case "AS1":
 		case "AS2":
 			newNode.evaluate = newNode.cost + newNode.heuristic;
+			break;
 		default:
 			newNode.evaluate = newNode.cost;
 		}
@@ -544,9 +528,11 @@ public class SaveWesteros extends SearchProblem{
 		case "GR1":
 		case "GR2":
 			newNode.evaluate = newNode.heuristic;
+			break;
 		case "AS1":
 		case "AS2":
 			newNode.evaluate = newNode.cost + newNode.heuristic;
+			break;
 		default:
 			newNode.evaluate = newNode.cost;
 		}
@@ -607,9 +593,11 @@ public class SaveWesteros extends SearchProblem{
 			case "GR1":
 			case "GR2":
 				newNode.evaluate = newNode.heuristic;
+				break;
 			case "AS1":
 			case "AS2":
 				newNode.evaluate = newNode.cost + newNode.heuristic;
+				break;
 			default:
 				newNode.evaluate = newNode.cost;
 			}
@@ -642,9 +630,11 @@ public class SaveWesteros extends SearchProblem{
 			case "GR1":
 			case "GR2":
 				newNode.evaluate = newNode.heuristic;
+				break;
 			case "AS1":
 			case "AS2":
 				newNode.evaluate = newNode.cost + newNode.heuristic;
+				break;
 			default:
 				newNode.evaluate = newNode.cost;
 			}
@@ -668,9 +658,9 @@ public class SaveWesteros extends SearchProblem{
 			System.out.println();
 		}
 		System.out.println();
-		System.out.println(maxDragonglass);
+		System.out.println("Maximum dragonglasses: "+maxDragonglass);
 		
-		String[] result = search(grid, "AS2", true);
+		String[] result = search(grid, "GR2", true);
 		
 		for(int i = 0; i < result.length; i++)
 			System.out.println(result[i]);
